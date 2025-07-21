@@ -2,7 +2,8 @@ version: "3.8"
 services:
   auth_service:
     build:
-      context: ./auth_service
+      context: .
+      dockerfile: ./auth_service/Dockerfile
     ports:
       - "8000:8000"
     environment:
@@ -13,7 +14,8 @@ services:
   
   roles_service:
     build:
-      context: ./roles_service
+      context: .
+      dockerfile: ./roles_service/Dockerfile
     ports:
       - "8001:8000"
     depends_on:
@@ -21,7 +23,8 @@ services:
 
   fields_service:
     build:
-      context: ./fields_service
+      context: .
+      dockerfile: ./fields_service/Dockerfile
     ports:
       - "8002:8000"
     depends_on:
@@ -29,7 +32,8 @@ services:
 
   reservations_service:
     build:
-      context: ./reservations_service
+      context: .
+      dockerfile: ./reservations_service/Dockerfile
     ports:
       - "8003:8000"
     depends_on:
@@ -38,7 +42,8 @@ services:
 
   admin_dashboard:
     build:
-      context: ./admin_dashboard
+      context: .
+      dockerfile: ./admin_dashboard/Dockerfile
     ports:
       - "8004:8000"
     depends_on:

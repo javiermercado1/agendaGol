@@ -52,10 +52,10 @@ services:
 
   db:
     image: postgres:14
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: auth_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env.local
     ports:
       - "5432:5432"
 

@@ -1,0 +1,60 @@
+version: "3.8"
+services:
+  auth_service:
+    build:
+      context: ./auth_service
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db/auth_db
+    depends_on:
+      - db
+      - redis
+  
+  roles_service:
+    build:
+      context: ./roles_service
+    ports:
+      - "8001:8000"
+    depends_on:
+      - db
+
+  fields_service:
+    build:
+      context: ./fields_service
+    ports:
+      - "8002:8000"
+    depends_on:
+      - db
+
+  reservations_service:
+    build:
+      context: ./reservations_service
+    ports:
+      - "8003:8000"
+    depends_on:
+      - db
+      - redis
+
+  admin_dashboard:
+    build:
+      context: ./admin_dashboard
+    ports:
+      - "8004:8000"
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: auth_db
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"

@@ -1,0 +1,32 @@
+# Entornos virtuales
+venv/
+pruebatec/
+
+# Archivos de configuración sensibles
+*.env
+.env.local
+
+# Archivos de caché de Python
+__pycache__/
+*.py[cod]
+
+# Archivos de logs
+*.log
+
+# Archivos de Docker
+*.env
+docker-compose.override.yml
+
+# Archivos de compilación
+*.egg-info/
+*.eggs/
+build/
+dist/
+
+# Configuración de IDEs
+.vscode/
+.idea/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db

@@ -48,8 +48,12 @@ def update_profile(user_update: schemas.UserUpdate, current_user: models.User = 
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
     
+    if not user_update.username and not user_update.password:
+        raise HTTPException(status_code=400, detail="At least one field must be provided for update")
+    
     if user_update.username:
         db_user.username = user_update.username
+        
     if user_update.password:
         db_user.hashed_password = auth.get_password_hash(user_update.password)
     

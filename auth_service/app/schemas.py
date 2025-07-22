@@ -20,6 +20,10 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+
+class PasswordRecoveryRequest(BaseModel):
+    email: EmailStr
+
 class UserUpdate(BaseModel): 
     username: Optional[str] = None
     email: Optional[EmailStr] = None

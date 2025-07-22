@@ -33,13 +33,13 @@ def login_user(user: schemas.UserLogin, db: Session = Depends(database.get_db)):
     return {"access_token": access_token, "token_type": "bearer"}
 
 @auth_routes.post("/password-recovery")
-def recover_password(email: str, db: Session = Depends(database.get_db)):
-    user = db.query(models.User).filter(models.User.email == email).first()
+def recover_password(request: schemas.PasswordRecoveryRequest, db: Session = Depends(database.get_db)):
+    user = db.query(models.User).filter(models.User.email == request.email).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    reset_token = auth.create_access_token(data={"sub": user.email}, expires_delta=3600) 
-    send_password_reset_email(email, reset_token)  
+    reset_token = auth.create_access_token(data={"sub": user.email}) 
+    send_password_reset_email(request.email, reset_token)  
     return {"message": "Password recovery email sent"}
 
 @auth_routes.put("/profile", response_model=schemas.UserResponse)

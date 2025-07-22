@@ -16,7 +16,7 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(database.get_d
         username=user.username,
         email=user.email,
         hashed_password=hashed_password,
-        role="Usuario"  
+        is_admin=False  
     )
     db.add(new_user)
     db.commit()
@@ -29,7 +29,7 @@ def login_user(user: schemas.UserLogin, db: Session = Depends(database.get_db)):
     if not db_user or not auth.verify_password(user.password, db_user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    access_token = auth.create_access_token(data={"sub": db_user.username, "role": db_user.role})
+    access_token = auth.create_access_token(data={"sub": db_user.username, "is_admin": db_user.is_admin})
     return {"access_token": access_token, "token_type": "bearer"}
 
 @auth_routes.post("/password-recovery")
@@ -38,7 +38,7 @@ def recover_password(email: str, db: Session = Depends(database.get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    reset_token = auth.create_access_token(data={"sub": user.email}, expires_delta=3600)  # Token válido por 1 hora
+    reset_token = auth.create_access_token(data={"sub": user.email}, expires_delta=3600) 
     send_password_reset_email(email, reset_token)  
     return {"message": "Password recovery email sent"}
 

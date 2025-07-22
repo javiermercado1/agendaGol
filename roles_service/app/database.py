@@ -21,5 +21,5 @@ def get_db():
         db.close()
 
 def init_db():
+    from app import models  # Importar modelos aquí para evitar importaciones circulares
     Base.metadata.create_all(bind=engine)
-    

@@ -17,7 +17,7 @@ COPY roles_service/init_roles.py .
 EXPOSE 8001
 
 # Crear un script para inicializar las tablas, roles y permisos
-RUN echo "from app.database import Base, engine\nfrom app.models import Role, Permission, RolePermission, UserRole\nBase.metadata.create_all(bind=engine)" > init_db.py
+RUN echo "import time\ntime.sleep(10)\nfrom app.database import init_db\ninit_db()" > init_db.py
 
 # Comando para iniciar la aplicación
-CMD ["sh", "-c", "python init_db.py && python init_roles.py && python main.py"]
+CMD ["sh", "-c", "python init_db.py && python init_roles.py && uvicorn app.main:app --host 0.0.0.0 --port 8001"]

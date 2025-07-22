@@ -8,7 +8,7 @@ load_dotenv()
 
 def send_password_reset_email(to_email, reset_token):
     # Configuración del servidor SMTP
-    smtp_server = "smtp.example.com"
+    smtp_server = "smtp.gmail.com"
     smtp_port = 587
     smtp_user = os.getenv('SMTP_USER')
     smtp_password = os.getenv('SMTP_PASSWORD')

@@ -112,7 +112,7 @@ def register_admin_user(
         db.refresh(new_user)
         return new_user
 
-@auth_routes.get("/users", response_model=dict)
+@auth_routes.get("/users") 
 def get_all_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
@@ -138,8 +138,19 @@ def get_all_users(
     total = query.count()
     users = query.offset(skip).limit(limit).all()
     
+    users_data = []
+    for user in users:
+        user_dict = {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "is_active": user.is_active,
+            "is_admin": user.is_admin
+        }
+        users_data.append(user_dict)
+    
     return {
-        "users": users,
+        "users": users_data,
         "total": total,
         "page": skip // limit + 1,
         "size": limit

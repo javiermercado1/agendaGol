@@ -50,11 +50,6 @@ def update_profile(user_update: schemas.UserUpdate, current_user: models.User = 
     
     if user_update.username:
         db_user.username = user_update.username
-    if user_update.email:
-        existing_user = db.query(models.User).filter(models.User.email == user_update.email).first()
-        if existing_user and existing_user.id != db_user.id:
-            raise HTTPException(status_code=400, detail="Email already registered")
-        db_user.email = user_update.email
     if user_update.password:
         db_user.hashed_password = auth.get_password_hash(user_update.password)
     

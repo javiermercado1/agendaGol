@@ -65,3 +65,47 @@ def update_profile(user_update: schemas.UserUpdate, current_user: models.User = 
 def get_current_user_info(current_user: models.User = Depends(auth.get_current_user)):
 
     return current_user
+
+@auth_routes.post("/register-admin", response_model=schemas.UserResponse)
+def register_admin_user(
+    user: schemas.UserCreateAdmin, 
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Only administrators can create admin users")
+    
+    existing_user = db.query(models.User).filter(models.User.email == user.email).first()
+    
+    if existing_user:
+        if existing_user.is_admin:
+            raise HTTPException(status_code=400, detail="User is already an administrator")
+        
+        existing_user.is_admin = True
+        db.commit()
+        db.refresh(existing_user)
+        return existing_user
+    
+    else:
+        hashed_password = auth.get_password_hash(user.password)
+        new_user = models.User(
+            username=user.username,
+            email=user.email,
+            hashed_password=hashed_password,
+            is_admin=True
+        )
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        return new_user
+
+@auth_routes.get("/users", response_model=list[schemas.UserResponse])
+def get_all_users(
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Only administrators can view all users")
+    
+    users = db.query(models.User).all()
+    return users

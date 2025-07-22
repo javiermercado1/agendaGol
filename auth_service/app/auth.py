@@ -35,6 +35,10 @@ def create_access_token(data: dict):
 
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):
+    print(f"=== DEBUG AUTH ===")
+    print(f"Received token: {token[:30] if token else 'NO TOKEN'}...")
+    print(f"SECRET_KEY exists: {SECRET_KEY is not None}")
+    print(f"SECRET_KEY length: {len(SECRET_KEY) if SECRET_KEY else 0}")
     credentials_exception = HTTPException(
         status_code=401,
         detail="Could not validate credentials",
@@ -42,13 +46,21 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        print(f"Decoded payload: {payload}")
         username: str = payload.get("sub")
+        print(f"Username from token: {username}")
         if username is None:
+            print("ERROR: Username is None")
             raise credentials_exception
-    except JWTError:
+    except JWTError as e:
+        print(f"JWT ERROR: {str(e)}")
+        print(f"Token that failed: {token}")
         raise credentials_exception
 
     user = db.query(models.User).filter(models.User.username == username).first()
     if user is None:
+        print(f"ERROR: User not found in DB for username: {username}")
         raise credentials_exception
+    
+    print(f"SUCCESS: User found: {user.username}")
     return user

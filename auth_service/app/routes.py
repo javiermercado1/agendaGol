@@ -42,7 +42,7 @@ def recover_password(request: schemas.PasswordRecoveryRequest, db: Session = Dep
     send_password_reset_email(request.email, reset_token)  
     return {"message": "Password recovery email sent"}
 
-@auth_routes.put("/profile", response_model=schemas.UserResponse)
+@auth_routes.patch("/profile", response_model=schemas.UserResponse)
 def update_profile(user_update: schemas.UserUpdate, current_user: models.User = Depends(auth.get_current_user), db: Session = Depends(database.get_db)):
     db_user = db.query(models.User).filter(models.User.id == current_user.id).first()
     if not db_user:

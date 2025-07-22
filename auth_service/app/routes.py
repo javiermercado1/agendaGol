@@ -56,3 +56,8 @@ def update_profile(user_update: schemas.UserUpdate, current_user: models.User = 
     db.commit()
     db.refresh(db_user)
     return db_user
+
+@auth_routes.get("/me", response_model=schemas.UserResponse)
+def get_current_user_info(current_user: models.User = Depends(auth.get_current_user)):
+
+    return current_user

@@ -8,8 +8,6 @@ services:
       - "8000:8000"
     env_file:
     - .env.local
-    environment:
-      - DATABASE_URL=postgresql://user:password@db/auth_db
     depends_on:
       - db
       - redis
@@ -19,18 +17,19 @@ services:
       context: .
       dockerfile: ./roles_service/Dockerfile
     ports:
-      - "8001:8000"
+      - "8001:8001"
     env_file:
     - .env.local  
     depends_on:
       - db
+      - auth_service
 
   fields_service:
     build:
       context: .
       dockerfile: ./fields_service/Dockerfile
     ports:
-      - "8002:8000"
+      - "8002:8002"
     env_file:
     - .env.local
     depends_on:
@@ -41,7 +40,7 @@ services:
       context: .
       dockerfile: ./reservations_service/Dockerfile
     ports:
-      - "8003:8000"
+      - "8003:8003"
     env_file:
     - .env.local
     depends_on:
@@ -53,7 +52,7 @@ services:
       context: .
       dockerfile: ./admin_dashboard/Dockerfile
     ports:
-      - "8004:8000"
+      - "8004:8004"
     env_file:
     - .env.local
     depends_on:

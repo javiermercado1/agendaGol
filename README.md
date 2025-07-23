@@ -139,5 +139,6 @@ docker-compose --version
 
 ---
 
-Para la configuración de NGINX, consulta el archivo [`NGINX.md`](NGINX.md).
-Para la informacion del sistema, consulta el archivo [`README_SISTEMA.md`](README_SISTEMA.md).
+Para la configuración de NGINX, consulta el archivo [`NGINX.md`](NGINX.md).  
+
+Para la información del sistema, consulta el archivo [`README_SISTEMA.md`](README_SISTEMA.md).

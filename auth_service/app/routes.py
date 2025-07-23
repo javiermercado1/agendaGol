@@ -30,8 +30,8 @@ def login_user(user: schemas.UserLogin, db: Session = Depends(database.get_db)):
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if not db_user or not auth.verify_password(user.password, db_user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
-    access_token = auth.create_access_token(data={"sub": db_user.username, "user_id": db_user.id, "is_admin": db_user.is_admin})
+
+    access_token = auth.create_access_token(data={"sub": db_user.username, "email": db_user.email, "user_id": db_user.id, "is_admin": db_user.is_admin})
     return {"access_token": access_token, "token_type": "bearer"}
 
 @auth_routes.get("/verify")

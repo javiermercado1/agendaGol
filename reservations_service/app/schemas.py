@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, Field
 from datetime import datetime
 from typing import Optional
 from enum import Enum
@@ -71,6 +71,12 @@ class ReservationResponse(ReservationBase):
 
     class Config:
         from_attributes = True
+
+    @validator('status', pre=True)
+    def convert_status_enum(cls, v):
+        if hasattr(v, 'value'):  
+            return v.value
+        return v
 
 class ReservationListResponse(BaseModel):
     reservations: list[ReservationResponse]

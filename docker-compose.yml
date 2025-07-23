@@ -14,6 +14,32 @@ services:
         interval: 10s
         timeout: 5s
         retries: 5
+      networks:
+        - app_network
+        
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
+    networks:
+      - app_network
+    
+  api_gateway:
+    build:
+      context: .
+      dockerfile: ./api_gateway/Dockerfile
+    ports:
+      - "8080:8080" 
+      - .env.local
+    depends_on:
+      - auth_service
+      - roles_service
+      - fields_service
+      - reservations_service
+      - admin_dashboard
+    networks:
+      - app_network
+  
   auth_service:
     build:
       context: .
@@ -25,6 +51,8 @@ services:
     depends_on:
       - db
       - redis
+    networks:
+      - app_network
   
   roles_service:
     build:
@@ -37,6 +65,8 @@ services:
     depends_on:
       - db
       - auth_service
+    networks:
+      - app_network
 
   fields_service:
     build:
@@ -48,6 +78,8 @@ services:
     - .env.local
     depends_on:
       - db
+    networks:
+      - app_network
 
   reservations_service:
     build:
@@ -60,6 +92,8 @@ services:
     depends_on:
       - db
       - redis
+    networks:
+      - app_network
 
   admin_dashboard:
     build:
@@ -72,13 +106,12 @@ services:
     depends_on:
       - db
       - redis
+    networks:
+      - app_network
 
-  
-
-  redis:
-    image: redis:6
-    ports:
-      - "6379:6379"
+networks:
+  app_network:
+    driver: bridge
 
 volumes:
   postgres_data:

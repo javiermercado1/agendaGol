@@ -26,12 +26,12 @@ services:
     
   api_gateway:
     build:
-      context: .
-      dockerfile: ./api_gateway/Dockerfile
+      context: ./api_gateway
+      dockerfile: Dockerfile
     ports:
       - "8080:8080" 
     env_file:
-        - .env.local
+      - .env
     depends_on:
       - auth_service
       - roles_service
@@ -48,7 +48,7 @@ services:
     ports:
       - "8000:8000"
     env_file:
-    - .env.local
+      - .env.local
     depends_on:
       - db
       - redis
@@ -62,7 +62,7 @@ services:
     ports:
       - "8001:8001"
     env_file:
-    - .env.local  
+      - .env.local  
     depends_on:
       - db
       - auth_service
@@ -76,7 +76,7 @@ services:
     ports:
       - "8002:8002"
     env_file:
-    - .env.local
+      - .env.local
     depends_on:
       - db
     networks:
@@ -89,7 +89,7 @@ services:
     ports:
       - "8003:8003"
     env_file:
-    - .env.local
+      - .env.local
     depends_on:
       - db
       - redis
@@ -103,7 +103,7 @@ services:
     ports:
       - "8004:8004"
     env_file:
-    - .env.local
+      - .env.local
     depends_on:
       - db
       - redis

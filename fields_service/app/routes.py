@@ -12,9 +12,9 @@ from app.schemas import FieldCreate, FieldUpdate, FieldResponse, FieldListRespon
 fields_router = APIRouter()
 
 # URLs de otros servicios
-AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "http://auth_service:8000")
-ROLES_SERVICE_URL = os.getenv("ROLES_SERVICE_URL", "http://roles_service:8001")
-RESERVATIONS_SERVICE_URL = os.getenv("RESERVATIONS_SERVICE_URL", "http://reservations_service:8003")
+AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL")
+ROLES_SERVICE_URL = os.getenv("ROLES_SERVICE_URL")
+RESERVATIONS_SERVICE_URL = os.getenv("RESERVATIONS_SERVICE_URL")
 
 def verify_admin_permission(auth_header: str):
     """Verificar que el usuario tenga permisos de administrador"""

@@ -340,7 +340,11 @@ def get_reservation(
         raise HTTPException(status_code=404, detail="Reserva no encontrada")
     
     # Verificar permisos - admin puede ver todas, usuario solo las suyas
-    is_admin = check_admin_permission(current_user_id, auth_header)
+    is_admin_from_auth = user_data.get("is_admin", False)
+    is_admin_from_roles = check_admin_permission(current_user_id, auth_header)
+    
+    # Si roles service falla, usar el is_admin del auth service
+    is_admin = is_admin_from_roles or is_admin_from_auth
     if not is_admin and reservation.user_id != current_user_id:
         raise HTTPException(status_code=403, detail="No tienes permisos para ver esta reserva")
     
@@ -432,8 +436,12 @@ def cancel_reservation(
     if not reservation:
         raise HTTPException(status_code=404, detail="Reserva no encontrada")
     
-    # Verificar permisos - admin puede cancelar cualquiera, usuario solo las suyas
-    is_admin = check_admin_permission(current_user_id, auth_header)
+    is_admin_from_auth = user_data.get("is_admin", False)
+    is_admin_from_roles = check_admin_permission(current_user_id, auth_header)
+    
+    # Si roles service falla, usar el is_admin del auth service
+    is_admin = is_admin_from_roles or is_admin_from_auth
+    
     if not is_admin and reservation.user_id != current_user_id:
         raise HTTPException(status_code=403, detail="No tienes permisos para cancelar esta reserva")
     

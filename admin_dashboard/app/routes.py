@@ -83,11 +83,13 @@ def get_dashboard_statistics(
     
     # Obtener estadísticas de canchas
     fields_data = get_service_data(f"{FIELDS_SERVICE_URL}/fields?limit=1000")
+    print("Fields data:", fields_data)
     total_fields = fields_data.get("total", 0)
     active_fields = len([f for f in fields_data.get("fields", []) if f.get("is_active", False)])
     
     # Obtener estadísticas de reservas
     reservations_stats = get_service_data(f"{RESERVATIONS_SERVICE_URL}/reservations/stats", auth_header)
+    print("Reservations stats:", reservations_stats)
     
     # Obtener reservas recientes
     recent_reservations = get_service_data(
@@ -237,22 +239,26 @@ def get_fields_statistics(
     if request:
         auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
     
+    print("Authorization header:", auth_header)
     verify_admin_permission(auth_header)
     
     # Obtener todas las canchas
     fields_data = get_service_data(f"{FIELDS_SERVICE_URL}/fields?limit=1000")
+    print("Fields data:", fields_data)
     fields = fields_data.get("fields", [])
     
     field_stats = []
     
     for field in fields:
         field_id = field.get("id")
+        print(f"Processing field ID: {field_id}")
         
         # Obtener reservas para esta cancha
         reservations_data = get_service_data(
             f"{RESERVATIONS_SERVICE_URL}/reservations?field_id={field_id}&limit=1000",
             auth_header
         )
+        print(f"Reservations data for field {field_id}:", reservations_data)
         
         reservations = reservations_data.get("reservations", [])
         
@@ -268,6 +274,10 @@ def get_fields_statistics(
             r for r in reservations 
             if datetime.fromisoformat(r.get("created_at", "").replace("Z", "")) > week_ago
         ])
+        
+        print(f"Stats for field {field_id}: total_reservations={total_reservations}, "
+              f"confirmed_reservations={confirmed_reservations}, cancelled_reservations={cancelled_reservations}, "
+              f"total_revenue={total_revenue}, weekly_reservations={weekly_reservations}")
         
         field_stats.append({
             "field_id": field_id,
@@ -285,6 +295,7 @@ def get_fields_statistics(
     
     # Ordenar por total de reservas descendente
     field_stats.sort(key=lambda x: x["total_reservations"], reverse=True)
+    print("Final field stats:", field_stats)
     
     return {
         "fields_statistics": field_stats,

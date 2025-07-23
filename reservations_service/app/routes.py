@@ -502,8 +502,12 @@ def get_reservation_stats(
     user_data = get_current_user(auth_header)
     current_user_id = user_data.get("user_id")
     
-    # Solo admin puede ver estadísticas generales
-    is_admin = check_admin_permission(current_user_id, auth_header)
+    is_admin_from_auth = user_data.get("is_admin", False)
+    is_admin_from_roles = check_admin_permission(current_user_id, auth_header)
+    
+    # Si roles service falla, usar el is_admin del auth service
+    is_admin = is_admin_from_roles or is_admin_from_auth
+
     if not is_admin:
         raise HTTPException(status_code=403, detail="Permisos insuficientes")
     

@@ -17,3 +17,7 @@ app.add_middleware(
 
 app.include_router(auth_routes, prefix="/auth", tags=["Authentication"])
 
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "service": "auth_service"}
+

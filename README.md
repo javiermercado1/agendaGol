@@ -137,6 +137,43 @@ docker-compose --version
    ```
 3. Accede a los servicios en los puertos especificados.
 
+## 🛠️ Construir Docker en Front para Producción
+
+### Construir Imagen de Producción
+```bash
+docker build -f Dockerfile.prod -t agenda-gol:latest .
+```
+
+### Ejecutar Contenedor de Producción
+```bash
+docker run -d -p 80:3000 --name agenda-gol-container agenda-gol:latest
+```
+
+---
+
+## 🛠️ Construir Imagen de Desarrollo
+
+### Construir Imagen de Desarrollo
+```bash
+docker build -t agenda-gol:dev .
+```
+
+### Ejecutar Contenedor de Desarrollo
+```bash
+docker run -d -p 3000:3000 --name agenda-gol-dev agenda-gol:dev
+```
+
+
+## 👑 Hacer Admin a un Usuario desde la Base de Datos
+
+1. Accede al contenedor de la base de datos:
+    ```bash
+    docker exec -it agendagol_db_1 psql -U postgres -d auth_db
+    ```
+2. Ejecuta el siguiente comando para otorgar privilegios de administrador al usuario deseado:
+    ```sql
+    UPDATE users SET is_admin = true WHERE email = 'emailDelUsuario@gmail.com';
+    ```
 ---
 
 Para la configuración de NGINX, consulta el archivo [`NGINX.md`](NGINX.md).  

@@ -286,6 +286,73 @@ def list_reservations(
         size=limit
     )
 
+@reservations_router.get("/stats", response_model=ReservationStatsResponse)
+def get_reservation_stats(
+    db: Session = Depends(get_db),
+    request: Request = None
+):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
+    user_data = get_current_user(auth_header)
+    current_user_id = user_data.get("user_id")
+    
+    is_admin_from_auth = user_data.get("is_admin", False)
+    is_admin_from_roles = check_admin_permission(current_user_id, auth_header)
+    
+    # Si roles service falla, usar el is_admin del auth service
+    is_admin = is_admin_from_roles or is_admin_from_auth
+
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Permisos insuficientes")
+    
+    now = datetime.now()
+    today_start = datetime.combine(now.date(), datetime.min.time())
+    today_end = datetime.combine(now.date(), datetime.max.time())
+    
+
+    
+    # Estadísticas básicas
+    total_reservations = db.query(Reservation).count()
+    print(f"DEBUG - Total reservations: {total_reservations}")
+    
+    active_reservations = db.query(Reservation).filter(
+        and_(
+            Reservation.status == ReservationStatus.CONFIRMADA,
+            Reservation.start_time > now
+        )
+    ).count()
+    print(f"DEBUG - Active reservations: {active_reservations}")
+    
+    cancelled_reservations = db.query(Reservation).filter(
+        Reservation.status == ReservationStatus.CANCELADA
+    ).count()
+    print(f"DEBUG - Cancelled reservations: {cancelled_reservations}")
+    
+    reservations_today = db.query(Reservation).filter(
+        and_(
+            Reservation.start_time >= today_start,
+            Reservation.start_time <= today_end
+        )
+    ).count()
+    print(f"DEBUG - Reservations today: {reservations_today}")
+    
+    # Calcular ingresos totales de reservas confirmadas
+    total_revenue_result = db.query(func.sum(Reservation.total_price)).filter(
+        Reservation.status == ReservationStatus.CONFIRMADA
+    ).scalar()
+    total_revenue = float(total_revenue_result or 0)
+    print(f"DEBUG - Total revenue: {total_revenue}")
+    
+    return ReservationStatsResponse(
+        total_reservations=total_reservations,
+        active_reservations=active_reservations,
+        cancelled_reservations=cancelled_reservations,
+        reservations_today=reservations_today,
+        total_revenue=total_revenue
+    )
+
 @reservations_router.get("/my", response_model=ReservationListResponse)
 def get_my_reservations(
     skip: int = Query(0, ge=0),
@@ -498,69 +565,3 @@ def get_field_reservations_by_date(
         for r in reservations
     ]
 
-@reservations_router.get("/stats", response_model=ReservationStatsResponse)
-def get_reservation_stats(
-    db: Session = Depends(get_db),
-    request: Request = None
-):
-    auth_header = None
-    if request:
-        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
-    
-    user_data = get_current_user(auth_header)
-    current_user_id = user_data.get("user_id")
-    
-    is_admin_from_auth = user_data.get("is_admin", False)
-    is_admin_from_roles = check_admin_permission(current_user_id, auth_header)
-    
-    # Si roles service falla, usar el is_admin del auth service
-    is_admin = is_admin_from_roles or is_admin_from_auth
-
-    if not is_admin:
-        raise HTTPException(status_code=403, detail="Permisos insuficientes")
-    
-    now = datetime.now()
-    today_start = datetime.combine(now.date(), datetime.min.time())
-    today_end = datetime.combine(now.date(), datetime.max.time())
-    
-
-    
-    # Estadísticas básicas
-    total_reservations = db.query(Reservation).count()
-    print(f"DEBUG - Total reservations: {total_reservations}")
-    
-    active_reservations = db.query(Reservation).filter(
-        and_(
-            Reservation.status == ReservationStatus.CONFIRMADA,
-            Reservation.start_time > now
-        )
-    ).count()
-    print(f"DEBUG - Active reservations: {active_reservations}")
-    
-    cancelled_reservations = db.query(Reservation).filter(
-        Reservation.status == ReservationStatus.CANCELADA
-    ).count()
-    print(f"DEBUG - Cancelled reservations: {cancelled_reservations}")
-    
-    reservations_today = db.query(Reservation).filter(
-        and_(
-            Reservation.start_time >= today_start,
-            Reservation.start_time <= today_end
-        )
-    ).count()
-    print(f"DEBUG - Reservations today: {reservations_today}")
-    
-    # Calcular ingresos totales de reservas confirmadas
-    total_revenue_result = db.query(func.sum(Reservation.total_price)).filter(
-        Reservation.status == ReservationStatus.CONFIRMADA
-    ).scalar()
-    total_revenue = float(total_revenue_result or 0)
-    print(f"DEBUG - Total revenue: {total_revenue}")
-    
-    return ReservationStatsResponse(
-        total_reservations=total_reservations,
-        active_reservations=active_reservations,
-        cancelled_reservations=cancelled_reservations,
-        reservations_today=reservations_today,
-        total_revenue=total_revenue
-    )

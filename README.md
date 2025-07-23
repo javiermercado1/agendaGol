@@ -81,6 +81,11 @@
 
 ---
 
+## 🎥 Video de Funcionamiento
+
+Puedes ver un video demostrativo del funcionamiento del sistema en el siguiente enlace:  
+[Ver Video](https://drive.google.com/file/d/1Vjw_JmSiFyaAExO_aAEOqcdPx-jfmOHx/view?usp=sharing)
+
 ## 🐳 Instalación de Docker y Docker Compose
 
 ### Requisitos Previos

@@ -30,7 +30,8 @@ services:
       dockerfile: ./api_gateway/Dockerfile
     ports:
       - "8080:8080" 
-      - .env.local
+    env_file:
+        - .env.local
     depends_on:
       - auth_service
       - roles_service

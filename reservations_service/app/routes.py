@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, Query, BackgroundTasks, R
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, func
 from typing import List, Optional
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, time
 import requests
 import os
 
@@ -82,6 +82,30 @@ def get_user_email(user_id: int, auth_header: str):
         pass
     return None
 
+def parse_time_field(time_value):
+    """Convert time field to datetime.time object"""
+    from datetime import time
+    
+    if time_value is None:
+        return None
+    
+    if isinstance(time_value, str):
+        try:
+            # Handle format "HH:MM" or "HH:MM:SS"
+            time_parts = time_value.split(":")
+            hour = int(time_parts[0])
+            minute = int(time_parts[1]) if len(time_parts) > 1 else 0
+            second = int(time_parts[2]) if len(time_parts) > 2 else 0
+            return time(hour, minute, second)
+        except (ValueError, IndexError):
+            return None
+    
+    # If it's already a time object, return it
+    if hasattr(time_value, 'hour'):
+        return time_value
+    
+    return None
+
 def send_reservation_email(reservation: Reservation, action: str, auth_header: str, reason: str = None):
     """Enviar email de notificación de reserva"""
     try:
@@ -146,13 +170,16 @@ def create_reservation(
         )
     
     # Verificar que la hora esté dentro del horario de la cancha
-    field_opening = datetime.combine(reservation.start_time.date(), field_info.get("opening_time", "10:00"))
-    field_closing = datetime.combine(reservation.start_time.date(), field_info.get("closing_time", "22:00"))
+    opening_time = parse_time_field(field_info.get("opening_time")) or time(10, 0)
+    closing_time = parse_time_field(field_info.get("closing_time")) or time(22, 0)
+    
+    field_opening = datetime.combine(reservation.start_time.date(), opening_time)
+    field_closing = datetime.combine(reservation.start_time.date(), closing_time)
     
     if reservation.start_time < field_opening or end_time > field_closing:
         raise HTTPException(
             status_code=400,
-            detail=f"La reserva debe estar entre {field_info.get('opening_time')} y {field_info.get('closing_time')}"
+            detail=f"La reserva debe estar entre {opening_time.strftime('%H:%M')} y {closing_time.strftime('%H:%M')}"
         )
     
     # Calcular precio total

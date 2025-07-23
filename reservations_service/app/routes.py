@@ -441,7 +441,7 @@ def cancel_reservation(
     
     # Si roles service falla, usar el is_admin del auth service
     is_admin = is_admin_from_roles or is_admin_from_auth
-    
+
     if not is_admin and reservation.user_id != current_user_id:
         raise HTTPException(status_code=403, detail="No tienes permisos para cancelar esta reserva")
     
@@ -498,7 +498,7 @@ def get_field_reservations_by_date(
         for r in reservations
     ]
 
-@reservations_router.get("/stats/", response_model=ReservationStatsResponse)
+@reservations_router.get("/stats", response_model=ReservationStatsResponse)
 def get_reservation_stats(
     db: Session = Depends(get_db),
     request: Request = None

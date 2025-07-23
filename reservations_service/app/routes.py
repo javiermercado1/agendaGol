@@ -43,19 +43,33 @@ def get_current_user(auth_header: str):
 def check_admin_permission(user_id: int, auth_header: str) -> bool:
     """Verificar si el usuario tiene permisos de administrador"""
     try:
+        print(f"DEBUG - Checking admin permissions for user_id: {user_id}")
+        print(f"DEBUG - ROLES_SERVICE_URL: {ROLES_SERVICE_URL}")
+        
         roles_response = requests.get(
             f"{ROLES_SERVICE_URL}/roles/user/{user_id}/permissions",
             headers={"Authorization": auth_header}
         )
+        
+        print(f"DEBUG - Roles service response status: {roles_response.status_code}")
+        
         if roles_response.status_code != 200:
+            print(f"DEBUG - Roles service error: {roles_response.text}")
             return False
         
         permissions = roles_response.json().get("permissions", [])
-        return any(
+        print(f"DEBUG - User permissions: {permissions}")
+        
+        is_admin = any(
             perm.get("resource") == "reservations" and perm.get("action") in ["view_all", "manage"]
             for perm in permissions
         )
-    except requests.exceptions.RequestException:
+        
+        print(f"DEBUG - User is admin: {is_admin}")
+        return is_admin
+        
+    except requests.exceptions.RequestException as e:
+        print(f"DEBUG - Request exception in check_admin_permission: {e}")
         return False
 
 def get_field_info(field_id: int):
@@ -228,11 +242,20 @@ def list_reservations(
     # Verificar permisos - admin puede ver todas, usuario solo las suyas
     is_admin = check_admin_permission(current_user_id, auth_header)
     
+    # DEBUG: Agregar logging
+    print(f"DEBUG - User ID: {current_user_id}")
+    print(f"DEBUG - Is Admin: {is_admin}")
+    print(f"DEBUG - Status filter: {status}")
+    print(f"DEBUG - Field ID filter: {field_id}")
+    
     query = db.query(Reservation)
     
     if not is_admin:
         # Usuario normal solo ve sus reservas
         query = query.filter(Reservation.user_id == current_user_id)
+        print(f"DEBUG - Non-admin user, filtering by user_id: {current_user_id}")
+    else:
+        print("DEBUG - Admin user, showing all reservations")
     
     if status:
         try:
@@ -249,6 +272,9 @@ def list_reservations(
     
     total = query.count()
     reservations = query.offset(skip).limit(limit).all()
+    
+    print(f"DEBUG - Total reservations found: {total}")
+    print(f"DEBUG - Reservations returned: {len(reservations)}")
     
     return ReservationListResponse(
         reservations=reservations,

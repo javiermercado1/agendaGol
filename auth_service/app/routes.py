@@ -37,6 +37,7 @@ def login_user(user: schemas.UserLogin, db: Session = Depends(database.get_db)):
 @auth_routes.get("/verify")
 def verify_token(current_user: models.User = Depends(auth.get_current_user)):
     """Verificar que el token sea válido y retornar info del usuario"""
+    print(f"DEBUG - Verifying token for user: {current_user.email}, ID: {current_user.id}")
     return {
         "user_id": current_user.id,
         "username": current_user.username,

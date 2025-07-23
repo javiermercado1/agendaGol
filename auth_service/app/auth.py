@@ -47,18 +47,18 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("email")
-        if email is None:
-            logger.error("ERROR: Email is None")
+        user_id: int = payload.get("user_id")
+        if user_id is None:
+            logger.error("ERROR: user_id is None")
             raise credentials_exception
     except JWTError as e:
         logger.error(f"JWT ERROR: {str(e)}")
         logger.error(f"Token that failed: {token}")
         raise credentials_exception
 
-    user = db.query(models.User).filter(models.User.email == email).first()
+    user = db.query(models.User).filter(models.User.id == user_id).first()
     if user is None:
-        logger.error(f"ERROR: User not found in DB for email: {email}")
+        logger.error(f"ERROR: User not found in DB for user_id: {user_id}")
         raise credentials_exception
 
     logger.info(f"SUCCESS: User found: {user.email}")

@@ -40,10 +40,6 @@ def create_access_token(data: dict):
 
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):
-    logger.info("=== DEBUG AUTH ===")
-    logger.info(f"Received token: {token[:30] if token else 'NO TOKEN'}...")
-    logger.info(f"SECRET_KEY exists: {SECRET_KEY is not None}")
-    logger.info(f"SECRET_KEY length: {len(SECRET_KEY) if SECRET_KEY else 0}")
     credentials_exception = HTTPException(
         status_code=401,
         detail="Could not validate credentials",
@@ -51,21 +47,19 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        logger.info(f"Decoded payload: {payload}")
-        username: str = payload.get("sub")
-        logger.info(f"Username from token: {username}")
-        if username is None:
-            logger.error("ERROR: Username is None")
+        email: str = payload.get("sub")
+        if email is None:
+            logger.error("ERROR: Email is None")
             raise credentials_exception
     except JWTError as e:
         logger.error(f"JWT ERROR: {str(e)}")
         logger.error(f"Token that failed: {token}")
         raise credentials_exception
 
-    user = db.query(models.User).filter(models.User.username == username).first()
+    user = db.query(models.User).filter(models.User.email == email).first()
     if user is None:
-        logger.error(f"ERROR: User not found in DB for username: {username}")
+        logger.error(f"ERROR: User not found in DB for email: {email}")
         raise credentials_exception
 
-    logger.info(f"SUCCESS: User found: {user.username}")
+    logger.info(f"SUCCESS: User found: {user.email}")
     return user

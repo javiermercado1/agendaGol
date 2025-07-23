@@ -523,29 +523,39 @@ def get_reservation_stats(
     today_start = datetime.combine(now.date(), datetime.min.time())
     today_end = datetime.combine(now.date(), datetime.max.time())
     
+
+    
     # Estadísticas básicas
     total_reservations = db.query(Reservation).count()
+    print(f"DEBUG - Total reservations: {total_reservations}")
+    
     active_reservations = db.query(Reservation).filter(
         and_(
             Reservation.status == ReservationStatus.CONFIRMADA,
             Reservation.start_time > now
         )
     ).count()
+    print(f"DEBUG - Active reservations: {active_reservations}")
+    
     cancelled_reservations = db.query(Reservation).filter(
         Reservation.status == ReservationStatus.CANCELADA
     ).count()
+    print(f"DEBUG - Cancelled reservations: {cancelled_reservations}")
+    
     reservations_today = db.query(Reservation).filter(
         and_(
             Reservation.start_time >= today_start,
             Reservation.start_time <= today_end
         )
     ).count()
+    print(f"DEBUG - Reservations today: {reservations_today}")
     
     # Calcular ingresos totales de reservas confirmadas
     total_revenue_result = db.query(func.sum(Reservation.total_price)).filter(
         Reservation.status == ReservationStatus.CONFIRMADA
     ).scalar()
     total_revenue = float(total_revenue_result or 0)
+    print(f"DEBUG - Total revenue: {total_revenue}")
     
     return ReservationStatsResponse(
         total_reservations=total_reservations,

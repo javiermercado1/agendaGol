@@ -65,14 +65,25 @@ def create_field(
         raise HTTPException(status_code=400, detail="Ya existe una cancha con ese nombre")
     
     db_field = Field(
-        **field.dict(),
+        name=field.name,
+        location=field.location,
+        capacity=field.capacity,
+        price_per_hour=field.price_per_hour,
+        description=field.description,
+        opening_time=field.opening_time,
+        closing_time=field.closing_time,
+        is_active=field.is_active,
         created_by=user_id
     )
-    db.add(db_field)
-    db.commit()
-    db.refresh(db_field)
     
-    return db_field
+    try:
+        db.add(db_field)
+        db.commit()
+        db.refresh(db_field)
+        return db_field
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error creating field: {str(e)}")
 
 @fields_router.get("/", response_model=FieldListResponse)
 def list_fields(

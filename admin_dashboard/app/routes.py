@@ -82,7 +82,7 @@ def get_dashboard_statistics(
     total_users = users_data.get("total_users", 0)
     
     # Obtener estadísticas de canchas
-    fields_data = get_service_data(f"{FIELDS_SERVICE_URL}/fields?limit=1000")
+    fields_data = get_service_data(f"{FIELDS_SERVICE_URL}/fields?limit=100")
     print("Fields data:", fields_data)
     total_fields = fields_data.get("total", 0)
     active_fields = len([f for f in fields_data.get("fields", []) if f.get("is_active", False)])
@@ -243,7 +243,7 @@ def get_fields_statistics(
     verify_admin_permission(auth_header)
     
     # Obtener todas las canchas
-    fields_data = get_service_data(f"{FIELDS_SERVICE_URL}/fields?limit=1000")
+    fields_data = get_service_data(f"{FIELDS_SERVICE_URL}/fields?limit=100")
     print("Fields data:", fields_data)
     fields = fields_data.get("fields", [])
     
@@ -255,7 +255,7 @@ def get_fields_statistics(
         
         # Obtener reservas para esta cancha
         reservations_data = get_service_data(
-            f"{RESERVATIONS_SERVICE_URL}/reservations?field_id={field_id}&limit=1000",
+            f"{RESERVATIONS_SERVICE_URL}/reservations?field_id={field_id}&limit=100",
             auth_header
         )
         print(f"Reservations data for field {field_id}:", reservations_data)
@@ -324,7 +324,7 @@ def get_daily_revenue(
     
     try:
         response = requests.get(
-            f"{RESERVATIONS_SERVICE_URL}/reservations?status=confirmada&limit=10000",
+            f"{RESERVATIONS_SERVICE_URL}/reservations?status=confirmada&limit=100",
             headers={"Authorization": auth_header},
             timeout=15
         )

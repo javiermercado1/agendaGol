@@ -31,8 +31,8 @@ def verify_admin_permission(auth_header: str):
         user_id = user_data.get("user_id")
         
         # Verificar permisos con roles service
-        roles_response = requests.get(
-            f"{ROLES_SERVICE_URL}/roles/user/{user_id}/permissions",
+        """ roles_response = requests.get(
+            f"{ROLES_SERVICE_URL}/roles/users/{user_id}/permissions",
             headers={"Authorization": auth_header}
         )
         if roles_response.status_code != 200:
@@ -45,7 +45,7 @@ def verify_admin_permission(auth_header: str):
         )
         
         if not has_admin_permission:
-            raise HTTPException(status_code=403, detail="Permisos insuficientes")
+            raise HTTPException(status_code=403, detail="Permisos insuficientes") """
         
         return user_id
     except requests.exceptions.RequestException:
@@ -153,7 +153,7 @@ def delete_field(
     auth_header = None
     if request:
         auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
-        
+
     verify_admin_permission(auth_header)
     
     field = db.query(Field).filter(Field.id == field_id).first()

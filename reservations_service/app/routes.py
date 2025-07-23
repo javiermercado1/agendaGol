@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Query, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Depends, Query, BackgroundTasks, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, func
 from typing import List, Optional
@@ -17,14 +17,17 @@ from app.email_service import EmailService
 reservations_router = APIRouter()
 
 # URLs de otros servicios
-AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "http://auth_service:8000")
-ROLES_SERVICE_URL = os.getenv("ROLES_SERVICE_URL", "http://roles_service:8001")
-FIELDS_SERVICE_URL = os.getenv("FIELDS_SERVICE_URL", "http://fields_service:8002")
+AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL")
+ROLES_SERVICE_URL = os.getenv("ROLES_SERVICE_URL")
+FIELDS_SERVICE_URL = os.getenv("FIELDS_SERVICE_URL")
 
 email_service = EmailService()
 
 def get_current_user(auth_header: str):
     """Obtener información del usuario actual"""
+    if not auth_header:
+        raise HTTPException(status_code=401, detail="Authorization header required")
+    
     try:
         auth_response = requests.get(
             f"{AUTH_SERVICE_URL}/auth/verify",
@@ -107,8 +110,12 @@ def create_reservation(
     reservation: ReservationCreate,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    auth_header: str = Depends(lambda request: request.headers.get("Authorization"))
+    request: Request = None
 ):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
     user_data = get_current_user(auth_header)
     user_id = user_data.get("user_id")
     
@@ -182,8 +189,12 @@ def list_reservations(
     field_id: Optional[int] = Query(None),
     user_id: Optional[int] = Query(None),
     db: Session = Depends(get_db),
-    auth_header: str = Depends(lambda request: request.headers.get("Authorization"))
+    request: Request = None
 ):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
     user_data = get_current_user(auth_header)
     current_user_id = user_data.get("user_id")
     
@@ -228,8 +239,12 @@ def get_my_reservations(
     limit: int = Query(10, ge=1, le=100),
     status: Optional[str] = Query(None),
     db: Session = Depends(get_db),
-    auth_header: str = Depends(lambda request: request.headers.get("Authorization"))
+    request: Request = None
 ):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
     user_data = get_current_user(auth_header)
     user_id = user_data.get("user_id")
     
@@ -258,8 +273,12 @@ def get_my_reservations(
 def get_reservation(
     reservation_id: int,
     db: Session = Depends(get_db),
-    auth_header: str = Depends(lambda request: request.headers.get("Authorization"))
+    request: Request = None
 ):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
     user_data = get_current_user(auth_header)
     current_user_id = user_data.get("user_id")
     
@@ -279,8 +298,12 @@ def update_reservation(
     reservation_id: int,
     reservation_update: ReservationUpdate,
     db: Session = Depends(get_db),
-    auth_header: str = Depends(lambda request: request.headers.get("Authorization"))
+    request: Request = None
 ):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
     user_data = get_current_user(auth_header)
     current_user_id = user_data.get("user_id")
     
@@ -343,8 +366,12 @@ def cancel_reservation(
     cancel_request: ReservationCancelRequest,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
-    auth_header: str = Depends(lambda request: request.headers.get("Authorization"))
+    request: Request = None
 ):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
     user_data = get_current_user(auth_header)
     current_user_id = user_data.get("user_id")
     
@@ -413,8 +440,12 @@ def get_field_reservations_by_date(
 @reservations_router.get("/stats/", response_model=ReservationStatsResponse)
 def get_reservation_stats(
     db: Session = Depends(get_db),
-    auth_header: str = Depends(lambda request: request.headers.get("Authorization"))
+    request: Request = None
 ):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
     user_data = get_current_user(auth_header)
     current_user_id = user_data.get("user_id")
     

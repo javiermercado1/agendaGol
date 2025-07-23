@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, HTTPException, Depends, Query, Request
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timedelta, time
@@ -55,8 +55,12 @@ def verify_admin_permission(auth_header: str):
 def create_field(
     field: FieldCreate,
     db: Session = Depends(get_db),
-    auth_header: str = Depends(lambda request: request.headers.get("Authorization"))
+    request: Request = None 
 ):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+
     user_id = verify_admin_permission(auth_header)
     
     # Verificar que no exista una cancha con el mismo nombre
@@ -114,13 +118,18 @@ def get_field(field_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Cancha no encontrada")
     return field
 
-@fields_router.put("/{field_id}", response_model=FieldResponse)
+@fields_router.patch("/{field_id}", response_model=FieldResponse)
 def update_field(
     field_id: int,
     field_update: FieldUpdate,
     db: Session = Depends(get_db),
-    auth_header: str = Depends(lambda request: request.headers.get("Authorization"))
+    request: Request = None 
 ):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+
+
     verify_admin_permission(auth_header)
     
     field = db.query(Field).filter(Field.id == field_id).first()
@@ -139,8 +148,12 @@ def update_field(
 def delete_field(
     field_id: int,
     db: Session = Depends(get_db),
-    auth_header: str = Depends(lambda request: request.headers.get("Authorization"))
+    request: Request = None 
 ):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+        
     verify_admin_permission(auth_header)
     
     field = db.query(Field).filter(Field.id == field_id).first()

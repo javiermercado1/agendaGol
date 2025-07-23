@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import Optional
@@ -56,7 +56,22 @@ def recover_password(request: schemas.PasswordRecoveryRequest, db: Session = Dep
     return {"message": "Password recovery email sent"}
 
 @auth_routes.patch("/profile", response_model=schemas.UserResponse)
-def update_profile(user_update: schemas.UserUpdate, current_user: models.User = Depends(auth.get_current_user), db: Session = Depends(database.get_db)):
+def update_profile(
+    user_update: schemas.UserUpdate, 
+    db: Session = Depends(database.get_db),
+    request: Request = None
+):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
+    if not auth_header:
+        raise HTTPException(status_code=401, detail="Authorization header required")
+    
+    # Extract token from Bearer header
+    token = auth_header.replace("Bearer ", "") if auth_header.startswith("Bearer ") else auth_header
+    current_user = auth.get_current_user(token, db)
+    
     db_user = db.query(models.User).filter(models.User.id == current_user.id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -75,16 +90,40 @@ def update_profile(user_update: schemas.UserUpdate, current_user: models.User = 
     return db_user
 
 @auth_routes.get("/me", response_model=schemas.UserResponse)
-def get_current_user_info(current_user: models.User = Depends(auth.get_current_user)):
-
+def get_current_user_info(
+    db: Session = Depends(database.get_db),
+    request: Request = None
+):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
+    if not auth_header:
+        raise HTTPException(status_code=401, detail="Authorization header required")
+    
+    # Extract token from Bearer header
+    token = auth_header.replace("Bearer ", "") if auth_header.startswith("Bearer ") else auth_header
+    current_user = auth.get_current_user(token, db)
+    
     return current_user
 
 @auth_routes.post("/register-admin", response_model=schemas.UserResponse)
 def register_admin_user(
     user: schemas.UserCreateAdmin, 
-    current_user: models.User = Depends(auth.get_current_user),
-    db: Session = Depends(database.get_db)
+    db: Session = Depends(database.get_db),
+    request: Request = None
 ):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
+    if not auth_header:
+        raise HTTPException(status_code=401, detail="Authorization header required")
+    
+    # Extract token from Bearer header
+    token = auth_header.replace("Bearer ", "") if auth_header.startswith("Bearer ") else auth_header
+    current_user = auth.get_current_user(token, db)
+    
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Only administrators can create admin users")
     
@@ -118,9 +157,20 @@ def get_all_users(
     limit: int = Query(20, ge=1, le=100),
     role: Optional[str] = Query(None),
     is_active: Optional[bool] = Query(None),
-    current_user: models.User = Depends(auth.get_current_user),
-    db: Session = Depends(database.get_db)
+    db: Session = Depends(database.get_db),
+    request: Request = None
 ):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
+    if not auth_header:
+        raise HTTPException(status_code=401, detail="Authorization header required")
+    
+    # Extract token from Bearer header
+    token = auth_header.replace("Bearer ", "") if auth_header.startswith("Bearer ") else auth_header
+    current_user = auth.get_current_user(token, db)
+    
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Only administrators can view all users")
     
@@ -158,9 +208,20 @@ def get_all_users(
 
 @auth_routes.get("/users/stats")
 def get_users_stats(
-    current_user: models.User = Depends(auth.get_current_user),
-    db: Session = Depends(database.get_db)
+    db: Session = Depends(database.get_db),
+    request: Request = None
 ):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
+    if not auth_header:
+        raise HTTPException(status_code=401, detail="Authorization header required")
+    
+    # Extract token from Bearer header
+    token = auth_header.replace("Bearer ", "") if auth_header.startswith("Bearer ") else auth_header
+    current_user = auth.get_current_user(token, db)
+    
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Only administrators can view user stats")
     
@@ -178,9 +239,20 @@ def get_users_stats(
 @auth_routes.get("/user/{user_id}", response_model=schemas.UserResponse)
 def get_user_by_id(
     user_id: int,
-    current_user: models.User = Depends(auth.get_current_user),
-    db: Session = Depends(database.get_db)
+    db: Session = Depends(database.get_db),
+    request: Request = None
 ):
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
+    if not auth_header:
+        raise HTTPException(status_code=401, detail="Authorization header required")
+    
+    # Extract token from Bearer header
+    token = auth_header.replace("Bearer ", "") if auth_header.startswith("Bearer ") else auth_header
+    current_user = auth.get_current_user(token, db)
+    
     # Admin puede ver cualquier usuario, usuario regular solo su propia info
     if not current_user.is_admin and current_user.id != user_id:
         raise HTTPException(status_code=403, detail="Insufficient permissions")

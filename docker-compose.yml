@@ -24,22 +24,6 @@ services:
     networks:
       - app_network
     
-  api_gateway:
-    build:
-      context: ./api_gateway
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080" 
-    env_file:
-      - .env
-    depends_on:
-      - auth_service
-      - roles_service
-      - fields_service
-      - reservations_service
-      - admin_dashboard
-    networks:
-      - app_network
   
   auth_service:
     build:

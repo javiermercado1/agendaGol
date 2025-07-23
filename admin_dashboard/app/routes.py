@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, HTTPException, Depends, Query, Request
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
 import requests
@@ -7,13 +7,18 @@ import os
 dashboard_router = APIRouter()
 
 # URLs de otros servicios
-AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "http://auth_service:8000")
-ROLES_SERVICE_URL = os.getenv("ROLES_SERVICE_URL", "http://roles_service:8001")
-FIELDS_SERVICE_URL = os.getenv("FIELDS_SERVICE_URL", "http://fields_service:8002")
-RESERVATIONS_SERVICE_URL = os.getenv("RESERVATIONS_SERVICE_URL", "http://reservations_service:8003")
+AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL")
+ROLES_SERVICE_URL = os.getenv("ROLES_SERVICE_URL")
+FIELDS_SERVICE_URL = os.getenv("FIELDS_SERVICE_URL")
+RESERVATIONS_SERVICE_URL = os.getenv("RESERVATIONS_SERVICE_URL")
+FIELDS_SERVICE_URL = os.getenv("FIELDS_SERVICE_URL")
+RESERVATIONS_SERVICE_URL = os.getenv("RESERVATIONS_SERVICE_URL")
 
 def verify_admin_permission(auth_header: str):
     """Verificar que el usuario tenga permisos de administrador"""
+    if not auth_header:
+        raise HTTPException(status_code=401, detail="Authorization header required")
+    
     try:
         # Verificar token con auth service
         auth_response = requests.get(
@@ -63,9 +68,13 @@ def get_service_data(url: str, auth_header: str = None) -> Dict[str, Any]:
 
 @dashboard_router.get("/stats")
 def get_dashboard_statistics(
-    auth_header: str = Depends(lambda request: request.headers.get("Authorization"))
+    request: Request = None
 ):
     """Obtener estadísticas generales del dashboard"""
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
     verify_admin_permission(auth_header)
     
     # Obtener estadísticas de usuarios
@@ -115,9 +124,13 @@ def list_users(
     limit: int = Query(20, ge=1, le=100),
     role: Optional[str] = Query(None),
     is_active: Optional[bool] = Query(None),
-    auth_header: str = Depends(lambda request: request.headers.get("Authorization"))
+    request: Request = None
 ):
     """Listar usuarios registrados con filtros"""
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
     verify_admin_permission(auth_header)
     
     # Construir parámetros de consulta
@@ -166,9 +179,13 @@ def get_reservations_overview(
     field_id: Optional[int] = Query(None),
     date_from: Optional[datetime] = Query(None),
     date_to: Optional[datetime] = Query(None),
-    auth_header: str = Depends(lambda request: request.headers.get("Authorization"))
+    request: Request = None
 ):
     """Obtener vista general de reservas para el dashboard"""
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
     verify_admin_permission(auth_header)
     
     # Construir parámetros de consulta
@@ -213,9 +230,13 @@ def get_reservations_overview(
 
 @dashboard_router.get("/fields/stats")
 def get_fields_statistics(
-    auth_header: str = Depends(lambda request: request.headers.get("Authorization"))
+    request: Request = None
 ):
     """Obtener estadísticas detalladas de las canchas"""
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
     verify_admin_permission(auth_header)
     
     # Obtener todas las canchas
@@ -278,9 +299,13 @@ def get_fields_statistics(
 @dashboard_router.get("/revenue/daily")
 def get_daily_revenue(
     days: int = Query(30, ge=1, le=365),
-    auth_header: str = Depends(lambda request: request.headers.get("Authorization"))
+    request: Request = None
 ):
     """Obtener ingresos diarios de los últimos N días"""
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
     verify_admin_permission(auth_header)
     
     # Obtener todas las reservas confirmadas de los últimos días
@@ -325,9 +350,13 @@ def get_daily_revenue(
 
 @dashboard_router.get("/health-check")
 def dashboard_health_check(
-    auth_header: str = Depends(lambda request: request.headers.get("Authorization"))
+    request: Request = None
 ):
     """Verificar el estado de todos los servicios"""
+    auth_header = None
+    if request:
+        auth_header = request.headers.get("authorization") or request.headers.get("Authorization")
+    
     verify_admin_permission(auth_header)
     
     services = [

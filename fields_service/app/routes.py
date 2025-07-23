@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, Query, Request
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, date
 import requests
 import os
 
@@ -169,7 +169,7 @@ def delete_field(
 @fields_router.get("/{field_id}/availability", response_model=FieldAvailability)
 def get_field_availability(
     field_id: int,
-    date: datetime = Query(..., description="Fecha para verificar disponibilidad (YYYY-MM-DD)"),
+    date: date = Query(..., description="Fecha para verificar disponibilidad (YYYY-MM-DD)"),
     db: Session = Depends(get_db)
 ):
     field = db.query(Field).filter(Field.id == field_id, Field.is_active == True).first()
@@ -177,8 +177,8 @@ def get_field_availability(
         raise HTTPException(status_code=404, detail="Cancha no encontrada")
     
     # Verificar que la fecha no sea muy lejana (máximo 30 días)
-    max_date = datetime.now() + timedelta(days=30)
-    if date.date() > max_date.date():
+    max_date = datetime.now().date() + timedelta(days=30)
+    if date > max_date:
         raise HTTPException(status_code=400, detail="No se pueden hacer reservas con más de 30 días de anticipación")
     
     # Generar horarios disponibles (de 10 AM a 10 PM, en bloques de 1 hora)
@@ -189,7 +189,7 @@ def get_field_availability(
     try:
         # Obtener reservas existentes para esa fecha
         reservations_response = requests.get(
-            f"{RESERVATIONS_SERVICE_URL}/reservations/field/{field_id}/date/{date.date()}"
+            f"{RESERVATIONS_SERVICE_URL}/reservations/field/{field_id}/date/{date}"
         )
         reserved_hours = []
         if reservations_response.status_code == 200:
@@ -212,6 +212,6 @@ def get_field_availability(
     
     return FieldAvailability(
         field_id=field_id,
-        date=date,
+        date=datetime.combine(date, datetime.min.time()), 
         available_hours=available_hours
     )

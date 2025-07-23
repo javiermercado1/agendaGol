@@ -233,9 +233,6 @@ def list_reservations(
     if not is_admin:
         # Usuario normal solo ve sus reservas
         query = query.filter(Reservation.user_id == current_user_id)
-    elif user_id:
-        # Admin puede filtrar por usuario específico
-        query = query.filter(Reservation.user_id == user_id)
     
     if status:
         try:

@@ -184,3 +184,14 @@ docker run -d -p 3000:3000 --name agenda-gol-dev agenda-gol:dev
 Para la configuración de NGINX, consulta el archivo [`NGINX.md`](NGINX.md).  
 
 Para la información del sistema, consulta el archivo [`README_SISTEMA.md`](README_SISTEMA.md).
+
+
+Como usar el script en la raiz del repo
+
+```bash
+   make init 
+   make start
+   make status 
+   make logs
+   make stop
+```

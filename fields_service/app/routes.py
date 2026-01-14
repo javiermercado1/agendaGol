@@ -4,12 +4,15 @@ from typing import List, Optional
 from datetime import datetime, timedelta, time, date
 import requests
 import os
+from dotenv import load_dotenv
 
 from app.database import get_db
 from app.models import Field
 from app.schemas import FieldCreate, FieldUpdate, FieldResponse, FieldListResponse, FieldAvailability
 
 fields_router = APIRouter()
+
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env.local'))
 
 # URLs de otros servicios
 AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL")

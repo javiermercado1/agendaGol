@@ -1,0 +1,85 @@
+{
+  "info": {
+    "name": "AgendaGol - Local",
+    "_postman_id": "agendagol-local-collection",
+    "description": "Colección para probar servicios locales de AgendaGol",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "auth_base", "value": "http://localhost:8000" },
+    { "key": "roles_base", "value": "http://localhost:8001" },
+    { "key": "fields_base", "value": "http://localhost:8002" },
+    { "key": "reservations_base", "value": "http://localhost:8003" },
+    { "key": "dashboard_base", "value": "http://localhost:8004" },
+    { "key": "access_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth Service",
+      "item": [
+        {
+          "name": "Health",
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{auth_base}}/health", "host": ["{{auth_base}}"], "path": ["health"] } }
+        },
+        {
+          "name": "Register",
+          "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"secret123\"\n}"}, "url": { "raw": "{{auth_base}}/auth/register", "host": ["{{auth_base}}"], "path": ["auth","register"] } }
+        },
+        {
+          "name": "Login",
+          "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\n  \"email\": \"test@example.com\",\n  \"password\": \"secret123\"\n}"}, "url": { "raw": "{{auth_base}}/auth/login", "host": ["{{auth_base}}"], "path": ["auth","login"] } }
+        },
+        {
+          "name": "Verify Token",
+          "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw": "{{auth_base}}/auth/verify", "host": ["{{auth_base}}"], "path": ["auth","verify"] } }
+        },
+        {
+          "name": "Get Me",
+          "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw": "{{auth_base}}/auth/me", "host": ["{{auth_base}}"], "path": ["auth","me"] } }
+        },
+        {
+          "name": "Get Users (admin)",
+          "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw": "{{auth_base}}/auth/users", "host": ["{{auth_base}}"], "path": ["auth","users"] } }
+        }
+      ]
+    },
+    {
+      "name": "Roles Service",
+      "item": [
+        { "name": "Health", "request": { "method": "GET", "url": {"raw": "{{roles_base}}/health","host":["{{roles_base}}"],"path":["health"] } } },
+        { "name": "Validate Permission", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{access_token}}"}], "body": {"mode":"raw","raw":"{\n  \"user_id\": 1,\n  \"resource\": \"fields\",\n  \"action\": \"create\"\n}"}, "url": {"raw":"{{roles_base}}/validate-permission","host":["{{roles_base}}"],"path":["validate-permission"] } } },
+        { "name": "Get Roles", "request": { "method": "GET", "header":[{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": {"raw":"{{roles_base}}/roles","host":["{{roles_base}}"],"path":["roles"] } } },
+        { "name": "Create Role", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{access_token}}"}], "body": {"mode":"raw","raw":"{\n  \"name\": \"admin\",\n  \"description\": \"Administrator role\"\n}"}, "url": {"raw":"{{roles_base}}/roles","host":["{{roles_base}}"],"path":["roles"] } } },
+        { "name": "Get Permissions", "request": { "method": "GET", "header":[{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": {"raw":"{{roles_base}}/permissions","host":["{{roles_base}}"],"path":["permissions"] } } },
+        { "name": "Create Permission", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{access_token}}"}], "body": {"mode":"raw","raw":"{\n  \"name\": \"fields.create\",\n  \"description\": \"Create fields\",\n  \"resource\": \"fields\",\n  \"action\": \"create\"\n}"}, "url": {"raw":"{{roles_base}}/permissions","host":["{{roles_base}}"],"path":["permissions"] } } }
+      ]
+    },
+    {
+      "name": "Fields Service",
+      "item": [
+        { "name": "Health", "request": { "method": "GET", "url": {"raw":"{{fields_base}}/health","host":["{{fields_base}}"],"path":["health"] } } },
+        { "name": "Create Field", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{access_token}}"}], "body": {"mode":"raw","raw":"{\n  \"name\": \"Cancha A\",\n  \"location\": \"Ciudad\",\n  \"capacity\": 22,\n  \"price_per_hour\": 50.0,\n  \"description\": \"Principal\",\n  \"opening_time\": \"10:00:00\",\n  \"closing_time\": \"22:00:00\"\n}"}, "url": {"raw":"{{fields_base}}/","host":["{{fields_base}}"],"path":[""] } } },
+        { "name": "List Fields", "request": { "method": "GET", "url": {"raw":"{{fields_base}}/","host":["{{fields_base}}"],"path":[""] } } },
+        { "name": "Get Field", "request": { "method": "GET", "url": {"raw":"{{fields_base}}/1","host":["{{fields_base}}"],"path":["1"] } } },
+        { "name": "Get Availability", "request": { "method": "GET", "url": {"raw":"{{fields_base}}/1/availability?date=2026-01-14","host":["{{fields_base}}"],"path":["1","availability"],"query":[{"key":"date","value":"2026-01-14"}] } } }
+      ]
+    },
+    {
+      "name": "Reservations Service",
+      "item": [
+        { "name": "Health", "request": { "method": "GET", "url": {"raw":"{{reservations_base}}/health","host":["{{reservations_base}}"],"path":["health"] } } },
+        { "name": "Create Reservation", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{access_token}}"}], "body": {"mode":"raw","raw":"{\n  \"field_id\": 1,\n  \"start_time\": \"2026-01-15T10:00:00\",\n  \"duration_hours\": 1,\n  \"notes\": \"Prueba\"\n}"}, "url": {"raw":"{{reservations_base}}/reservations/","host":["{{reservations_base}}"],"path":["reservations"] } } },
+        { "name": "List Reservations", "request": { "method": "GET", "header":[{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": {"raw":"{{reservations_base}}/reservations","host":["{{reservations_base}}"],"path":["reservations"] } } },
+        { "name": "Get Reservation", "request": { "method": "GET", "header":[{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": {"raw":"{{reservations_base}}/reservations/1","host":["{{reservations_base}}"],"path":["reservations","1"] } } },
+        { "name": "Cancel Reservation", "request": { "method": "POST", "header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{access_token}}"}], "body": {"mode":"raw","raw":"{\n  \"reason\": \"Testing cancel\"\n}"}, "url": {"raw":"{{reservations_base}}/reservations/1/cancel","host":["{{reservations_base}}"],"path":["reservations","1","cancel"] } } }
+      ]
+    },
+    {
+      "name": "Admin Dashboard",
+      "item": [
+        { "name": "Health", "request": { "method": "GET", "url": {"raw":"{{dashboard_base}}/health","host":["{{dashboard_base}}"],"path":["health"] } } },
+        { "name": "Dashboard Stats", "request": { "method": "GET", "header":[{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": {"raw":"{{dashboard_base}}/dashboard/stats","host":["{{dashboard_base}}"],"path":["dashboard","stats"] } } }
+      ]
+    }
+  ]
+}

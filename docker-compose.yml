@@ -1,22 +1,5 @@
 version: "3.8"
 services:
-  db:
-      image: postgres:14
-      volumes:
-        - postgres_data:/var/lib/postgresql/data
-        - ./init_databases.sql:/docker-entrypoint-initdb.d/init_databases.sql
-      env_file:
-        - .env.local
-      ports:
-        - "5432:5432"
-      healthcheck:
-        test: ["CMD-SHELL", "pg_isready -U postgres"]
-        interval: 10s
-        timeout: 5s
-        retries: 5
-      networks:
-        - app_network
-        
   redis:
     image: redis:6
     ports:
@@ -34,7 +17,6 @@ services:
     env_file:
       - .env.local
     depends_on:
-      - db
       - redis
     networks:
       - app_network
@@ -48,7 +30,6 @@ services:
     env_file:
       - .env.local  
     depends_on:
-      - db
       - auth_service
     networks:
       - app_network
@@ -61,8 +42,7 @@ services:
       - "8002:8002"
     env_file:
       - .env.local
-    depends_on:
-      - db
+    depends_on: []
     networks:
       - app_network
 
@@ -75,7 +55,6 @@ services:
     env_file:
       - .env.local
     depends_on:
-      - db
       - redis
     networks:
       - app_network
@@ -89,7 +68,6 @@ services:
     env_file:
       - .env.local
     depends_on:
-      - db
       - redis
     networks:
       - app_network
@@ -99,4 +77,4 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
+  # No external DB volume needed when using SQLite for local testing

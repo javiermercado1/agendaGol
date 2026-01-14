@@ -1,22 +1,22 @@
 # Usa una imagen base de Python
 FROM python:3.12-slim
 
-RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
+ENV PYTHONPATH=/app
+
+# Instalar dependencias del sistema mínimas
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY .env.local .
-
+# Copiar el código del servicio
 COPY auth_service/ .
+COPY .env.local .
 
 EXPOSE 8000
 
-# Crear un script para inicializar las tablas y luego ejecutar uvicorn
-RUN echo "from app.database import Base, engine\nfrom app.models import User\nBase.metadata.create_all(bind=engine)" > init_db.py
-
-# Comando para iniciar la aplicación
-CMD ["sh", "-c", "python init_db.py && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+# Comando para iniciar la aplicación: asegura inicialización de DB y arranca uvicorn
+CMD ["sh", "-c", "python app/init_db.py && uvicorn app.main:app --host 0.0.0.0 --port 8000"]

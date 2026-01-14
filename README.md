@@ -130,17 +130,35 @@ docker-compose --version
 
 ---
 
-## 🚀 Despliegue con Docker Compose
-1. Clona el repositorio:
-   ```bash
-   git clone https://github.com/javiermercado1/agendaGol.git
-   cd agendagol
-   ```
-2. Construye y levanta los servicios:
-   ```bash
-   docker-compose up --build
-   ```
-3. Accede a los servicios en los puertos especificados.
+##  Despliegue Rápido (Recomendado)
+
+Para correr el proyecto completo con un solo comando:
+
+**En PowerShell:**
+```powershell
+.\make init
+```
+
+**En CMD (Símbolo del sistema) o Git Bash:**
+```bash
+make init
+```
+
+> [!TIP]
+> Si te da error el comando `make`, recuerda usar **`.\make init`** (punto y barra antes de make) si estás en PowerShell.
+
+Este comando descargará las dependencias, construirá las imágenes y levantará todos los microservicios automáticamente usando Docker. 
+
+---
+
+## 🛠️ Comandos Disponibles (Makefile)
+
+- `make init`: Construye y levanta todo los servicios.
+- `make start`: Levanta los servicios en segundo plano.
+- `make stop`: Detiene todos los servicios.
+- `make logs`: Muestra los logs en tiempo real.
+- `make status`: Muestra el estado de los contenedores.
+- `make clean`: Limpia contenedores, volúmenes y bases de datos locales.
 
 ## 🛠️ Construir Docker en Front para Producción
 
@@ -184,3 +202,14 @@ docker run -d -p 3000:3000 --name agenda-gol-dev agenda-gol:dev
 Para la configuración de NGINX, consulta el archivo [`NGINX.md`](NGINX.md).  
 
 Para la información del sistema, consulta el archivo [`README_SISTEMA.md`](README_SISTEMA.md).
+
+
+Como usar el script en la raiz del repo
+
+```bash
+   make init 
+   make start
+   make status 
+   make logs
+   make stop
+```

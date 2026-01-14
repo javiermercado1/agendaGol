@@ -1,0 +1,436 @@
+{
+  "info": {
+    "name": "AgendaGol - Full Local",
+    "_postman_id": "agendagol-full-local",
+    "description": "Colección completa para probar todos los endpoints locales de AgendaGol",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "auth_base", "value": "http://localhost:8000" },
+    { "key": "roles_base", "value": "http://localhost:8001" },
+    { "key": "fields_base", "value": "http://localhost:8002" },
+    { "key": "reservations_base", "value": "http://localhost:8003" },
+    { "key": "dashboard_base", "value": "http://localhost:8004" },
+    { "key": "access_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth Service",
+      "item": [
+        {
+          "name": "Register user",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"secret123\"\n}" },
+            "url": { "raw": "{{auth_base}}/auth/register", "host": ["{{auth_base}}"], "path": ["auth","register"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Login (get token)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"secret123\"\n}" },
+            "url": { "raw": "{{auth_base}}/auth/login", "host": ["{{auth_base}}"], "path": ["auth","login"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify token",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{auth_base}}/auth/verify", "host": ["{{auth_base}}"], "path": ["auth","verify"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Get current user",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{auth_base}}/auth/me", "host": ["{{auth_base}}"], "path": ["auth","me"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Update profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"nuevoNombre\"\n}" },
+            "url": { "raw": "{{auth_base}}/auth/profile", "host": ["{{auth_base}}"], "path": ["auth","profile"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Password recovery",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"test@example.com\"\n}" },
+            "url": { "raw": "{{auth_base}}/auth/password-recovery", "host": ["{{auth_base}}"], "path": ["auth","password-recovery"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Register admin (admin only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"adminuser\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"adminpass\"\n}" },
+            "url": { "raw": "{{auth_base}}/auth/register-admin", "host": ["{{auth_base}}"], "path": ["auth","register-admin"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Get all users (admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{auth_base}}/auth/users?skip=0&limit=20", "host": ["{{auth_base}}"], "path": ["auth","users"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Get users stats (admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{auth_base}}/auth/users/stats", "host": ["{{auth_base}}"], "path": ["auth","users","stats"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Get user by id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{auth_base}}/auth/user/1", "host": ["{{auth_base}}"], "path": ["auth","user","1"] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reservations Service",
+      "item": [
+        {
+          "name": "Create reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"field_id\": 1,\n  \"start_time\": \"2026-01-20T14:00:00\",\n  \"duration_hours\": 1,\n  \"notes\": \"Prueba desde Postman\"\n}" },
+            "url": { "raw": "{{reservations_base}}/reservations/", "host": ["{{reservations_base}}"], "path": ["reservations",""] }
+          },
+          "response": []
+        },
+        {
+          "name": "List reservations",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{reservations_base}}/reservations?skip=0&limit=10", "host": ["{{reservations_base}}"], "path": ["reservations"] }
+          },
+          "response": []
+        },
+        {
+          "name": "My reservations",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{reservations_base}}/reservations/my?skip=0&limit=10", "host": ["{{reservations_base}}"], "path": ["reservations","my"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Get reservation by id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{reservations_base}}/reservations/123", "host": ["{{reservations_base}}"], "path": ["reservations","123"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Update reservation",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"start_time\": \"2026-01-20T15:00:00\",\n  \"duration_hours\": 2\n}" },
+            "url": { "raw": "{{reservations_base}}/reservations/123", "host": ["{{reservations_base}}"], "path": ["reservations","123"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"reason\": \"No puedo asistir\"\n}" },
+            "url": { "raw": "{{reservations_base}}/reservations/123/cancel", "host": ["{{reservations_base}}"], "path": ["reservations","123","cancel"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Reservations stats (admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{reservations_base}}/reservations/stats", "host": ["{{reservations_base}}"], "path": ["reservations","stats"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Field reservations by date",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{reservations_base}}/reservations/field/1/date/2026-01-20", "host": ["{{reservations_base}}"], "path": ["reservations","field","1","date","2026-01-20"] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Fields Service",
+      "item": [
+        {
+          "name": "Create field (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Cancha 1\",\n  \"location\": \"Ciudad\",\n  \"capacity\": 10,\n  \"price_per_hour\": 20.0,\n  \"opening_time\": \"10:00\",\n  \"closing_time\": \"22:00\",\n  \"description\": \"Buena cancha\",\n  \"is_active\": true\n}" },
+            "url": { "raw": "{{fields_base}}/fields/", "host": ["{{fields_base}}"], "path": ["fields",""] }
+          },
+          "response": []
+        },
+        {
+          "name": "List fields",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{fields_base}}/fields?skip=0&limit=10", "host": ["{{fields_base}}"], "path": ["fields"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Get field by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{fields_base}}/fields/1", "host": ["{{fields_base}}"], "path": ["fields","1"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Update field (admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"price_per_hour\": 25.0\n}" },
+            "url": { "raw": "{{fields_base}}/fields/1", "host": ["{{fields_base}}"], "path": ["fields","1"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete field (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{fields_base}}/fields/1", "host": ["{{fields_base}}"], "path": ["fields","1"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Field availability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{fields_base}}/fields/1/availability?date=2026-01-20", "host": ["{{fields_base}}"], "path": ["fields","1","availability"] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Roles Service",
+      "item": [
+        {
+          "name": "Validate permission",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"user_id\": 1,\n  \"resource\": \"reservations\",\n  \"action\": \"view_all\"\n}" },
+            "url": { "raw": "{{roles_base}}/validate-permission", "host": ["{{roles_base}}"], "path": ["validate-permission"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Get all roles (admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{roles_base}}/roles", "host": ["{{roles_base}}"], "path": ["roles"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Create role (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"editor\",\n  \"description\": \"Editor role\",\n  \"is_active\": true\n}" },
+            "url": { "raw": "{{roles_base}}/roles", "host": ["{{roles_base}}"], "path": ["roles"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Get permissions",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{roles_base}}/permissions?resource=reservations", "host": ["{{roles_base}}"], "path": ["permissions"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Create permission (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"reservations.view_all\",\n  \"resource\": \"reservations\",\n  \"action\": \"view_all\",\n  \"is_active\": true\n}" },
+            "url": { "raw": "{{roles_base}}/permissions", "host": ["{{roles_base}}"], "path": ["permissions"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign role to user (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"role_id\": 2\n}" },
+            "url": { "raw": "{{roles_base}}/users/1/assign-role", "host": ["{{roles_base}}"], "path": ["users","1","assign-role"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Get user permissions",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{roles_base}}/users/1/permissions", "host": ["{{roles_base}}"], "path": ["users","1","permissions"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign permission to role (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"permission_id\": 3\n}" },
+            "url": { "raw": "{{roles_base}}/roles/2/permissions", "host": ["{{roles_base}}"], "path": ["roles","2","permissions"] }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Dashboard",
+      "item": [
+        {
+          "name": "Dashboard stats (admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{dashboard_base}}/stats", "host": ["{{dashboard_base}}"], "path": ["stats"] }
+          },
+          "response": []
+        },
+        {
+          "name": "List users (dashboard, admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{dashboard_base}}/users?skip=0&limit=20", "host": ["{{dashboard_base}}"], "path": ["users"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Reservations overview (dashboard, admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{dashboard_base}}/reservations?skip=0&limit=20", "host": ["{{dashboard_base}}"], "path": ["reservations"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Fields stats (dashboard)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{dashboard_base}}/fields/stats", "host": ["{{dashboard_base}}"], "path": ["fields","stats"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Daily revenue (dashboard)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{dashboard_base}}/revenue/daily?days=30", "host": ["{{dashboard_base}}"], "path": ["revenue","daily"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Health check (dashboard)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{dashboard_base}}/health-check", "host": ["{{dashboard_base}}"], "path": ["health-check"] }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

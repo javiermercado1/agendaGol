@@ -3,8 +3,12 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
 import requests
 import os
+from dotenv import load_dotenv
 
 dashboard_router = APIRouter()
+
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env.local'))
+
 
 # URLs de otros servicios
 AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL")

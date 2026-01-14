@@ -1,54 +1,27 @@
 version: "3.8"
+
 services:
-  db:
-      image: postgres:14
-      volumes:
-        - postgres_data:/var/lib/postgresql/data
-        - ./init_databases.sql:/docker-entrypoint-initdb.d/init_databases.sql
-      env_file:
-        - .env.local
-      ports:
-        - "5432:5432"
-      healthcheck:
-        test: ["CMD-SHELL", "pg_isready -U postgres"]
-        interval: 10s
-        timeout: 5s
-        retries: 5
-      networks:
-        - app_network
-        
-  redis:
-    image: redis:6
-    ports:
-      - "6379:6379"
-    networks:
-      - app_network
-    
-  
   auth_service:
     build:
       context: .
       dockerfile: ./auth_service/Dockerfile
     ports:
       - "8000:8000"
-    env_file:
-      - .env.local
-    depends_on:
-      - db
-      - redis
+    environment:
+      - DATABASE_URL=sqlite:///./auth.db
     networks:
       - app_network
-  
+
   roles_service:
     build:
       context: .
       dockerfile: ./roles_service/Dockerfile
     ports:
       - "8001:8001"
-    env_file:
-      - .env.local  
+    environment:
+      - DATABASE_URL=sqlite:///./roles.db
+      - AUTH_SERVICE_URL=http://auth_service:8000
     depends_on:
-      - db
       - auth_service
     networks:
       - app_network
@@ -59,10 +32,13 @@ services:
       dockerfile: ./fields_service/Dockerfile
     ports:
       - "8002:8002"
-    env_file:
-      - .env.local
+    environment:
+      - DATABASE_URL=sqlite:///./fields.db
+      - AUTH_SERVICE_URL=http://auth_service:8000
+      - ROLES_SERVICE_URL=http://roles_service:8001
     depends_on:
-      - db
+      - auth_service
+      - roles_service
     networks:
       - app_network
 
@@ -72,11 +48,15 @@ services:
       dockerfile: ./reservations_service/Dockerfile
     ports:
       - "8003:8003"
-    env_file:
-      - .env.local
+    environment:
+      - DATABASE_URL=sqlite:///./reservations.db
+      - AUTH_SERVICE_URL=http://auth_service:8000
+      - ROLES_SERVICE_URL=http://roles_service:8001
+      - FIELDS_SERVICE_URL=http://fields_service:8002
     depends_on:
-      - db
-      - redis
+      - auth_service
+      - roles_service
+      - fields_service
     networks:
       - app_network
 
@@ -86,17 +66,19 @@ services:
       dockerfile: ./admin_dashboard/Dockerfile
     ports:
       - "8004:8004"
-    env_file:
-      - .env.local
+    environment:
+      - AUTH_SERVICE_URL=http://auth_service:8000
+      - ROLES_SERVICE_URL=http://roles_service:8001
+      - FIELDS_SERVICE_URL=http://fields_service:8002
+      - RESERVATIONS_SERVICE_URL=http://reservations_service:8003
     depends_on:
-      - db
-      - redis
+      - auth_service
+      - roles_service
+      - fields_service
+      - reservations_service
     networks:
       - app_network
 
 networks:
   app_network:
     driver: bridge
-
-volumes:
-  postgres_data:

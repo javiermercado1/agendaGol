@@ -1,26 +1,22 @@
 # Usa una imagen base de Python
 FROM python:3.12-slim
 
-RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
-
-
 WORKDIR /app
+ENV PYTHONPATH=/app
+
+# Instalar dependencias del sistema mínimas
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY .env.local .
-
+# Copiar el código del servicio
 COPY roles_service/ .
-
-# Copiar script de inicialización
-COPY roles_service/init_roles.py .
+COPY .env.local .
 
 EXPOSE 8001
 
-# Crear un script para inicializar las tablas, roles y permisos
-RUN echo "import time\ntime.sleep(10)\nfrom app.database import init_db\ninit_db()" > init_db.py
-
-# Comando para iniciar la aplicación
-CMD ["sh", "-c", "python init_db.py && python init_roles.py && uvicorn app.main:app --host 0.0.0.0 --port 8001"]
+# Comando para iniciar la aplicación: asegura inicialización de DB, roles y arranca uvicorn
+CMD ["sh", "-c", "python app/init_db.py && python init_roles.py && uvicorn app.main:app --host 0.0.0.0 --port 8001"]

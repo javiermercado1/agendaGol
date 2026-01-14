@@ -13,6 +13,9 @@ from app.schemas import (
     ReservationListResponse, ReservationCancelRequest, ReservationStatsResponse
 )
 from app.email_service import EmailService
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env.local'))
 
 reservations_router = APIRouter()
 
@@ -34,11 +37,15 @@ def get_current_user(auth_header: str):
             headers={"Authorization": auth_header}
         )
         if auth_response.status_code != 200:
-            raise HTTPException(status_code=401, detail="Token inválido")
+            try:
+                error_detail = auth_response.json().get("detail", auth_response.text)
+            except Exception:
+                error_detail = auth_response.text
+            raise HTTPException(status_code=auth_response.status_code, detail=error_detail)
         
         return auth_response.json()
-    except requests.exceptions.RequestException:
-        raise HTTPException(status_code=503, detail="Error conectando con servicio de autenticación")
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=503, detail=f"Error conectando con servicio de autenticación: {str(e)}")
 
 def check_admin_permission(user_id: int, auth_header: str) -> bool:
     """Verificar si el usuario tiene permisos de administrador"""

@@ -1,20 +1,13 @@
-# 🏗️ AgendaGol - Microservicios
 
-Este proyecto es un sistema de gestión de canchas y reservas basado en una arquitectura de microservicios.
 # 🏗️ AgendaGol - Microservicios
 
 Este proyecto es un sistema de gestión de canchas y reservas basado en una arquitectura de microservicios.
 
 ---
 
-## 🚀 Cómo Correr el Proyecto (Despliegue Rápido)
+## Cómo Correr el Proyecto (Despliegue Rápido)
 
-Para levantar todos los servicios automáticamente con un solo comando:
-
-### **En Windows (PowerShell):**
-## 🚀 Cómo Correr el Proyecto (Despliegue Rápido)
-
-Para levantar todos los servicios automáticamente con un solo comando:
+Para levantar todos los servicios con un solo comando:
 
 ### **En Windows (PowerShell):**
 ```powershell
@@ -22,35 +15,28 @@ Para levantar todos los servicios automáticamente con un solo comando:
 ```
 
 ### **En Windows (CMD) / Linux / Mac:**
-### **En Windows (CMD) / Linux / Mac:**
 ```bash
 make init
 ```
 
 > [!TIP]
 > Si no tienes `make` instalado en Linux/Mac, utiliza directamente: `docker-compose up --build`.
-> Si no tienes `make` instalado en Linux/Mac, utiliza directamente: `docker-compose up --build`.
 
 ---
 
-## 🛠️ Comandos de Gestión
-## 🛠️ Comandos de Gestión
 
-- `make init`: Construye y levanta todo (recomendado la primera vez).
-- `make start`: Inicia los servicios en segundo plano.
+## Comandos de Gestión
+
 - `make init`: Construye y levanta todo (recomendado la primera vez).
 - `make start`: Inicia los servicios en segundo plano.
 - `make stop`: Detiene todos los servicios.
 - `make logs`: Ver logs en tiempo real.
 - `make status`: Ver estado de los contenedores.
 - `make clean`: Borra contenedores y bases de datos locales.
-- `make logs`: Ver logs en tiempo real.
-- `make status`: Ver estado de los contenedores.
-- `make clean`: Borra contenedores y bases de datos locales.
 
 ---
 
-## � Guía de Integración para Frontend
+## Guía de Integración para Frontend
 
 ### 🔑 Autenticación (JWT)
 La mayoría de los servicios protegidos requieren un token **JSON Web Token (JWT)**.
@@ -113,5 +99,3 @@ El sistema se divide en 5 microservicios principales:
 - `GET /stats`: Resumen global de usuarios, canchas e ingresos.
 - `GET /health-check`: Estado de salud de todos los microservicios.
 - `GET /fields/stats`: Estadísticas de uso por cada cancha.
-
----
